@@ -252,7 +252,8 @@ def initiate_photo(channel):
         timer_going = 0
         pygame.time.set_timer(EVENTID_PHOTOTIMER,0)
         # Print the final image
-        print_final_image()
+        # ec Skip for now
+        # print_final_image()
 
 def shut_computer_down(channel):  
     print "Goodbye" 
