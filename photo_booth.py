@@ -19,7 +19,8 @@
 import os
 import pygame, sys
 import pygame.camera
-import PIL
+import Image
+#import PIL
 from PIL import Image 
 from time import sleep
 from pygame.locals import *
