@@ -21,8 +21,8 @@ import pygame, sys
 import pygame.camera
 #import Image
 import Image, ImageDraw
-#import PIL
-#from PIL import Image 
+import PIL
+from PIL import Image 
 from time import sleep
 from pygame.locals import *
 import tempfile
