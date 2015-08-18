@@ -33,7 +33,7 @@ import cups
 SKIP_GPIO=True
 
 
-os.chdir("/home/pi/photo_booth_sw")
+os.chdir("/home/pi/makey_booth")
 
 # Toggle the photo led
 def set_photo_led(value):
