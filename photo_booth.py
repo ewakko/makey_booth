@@ -277,9 +277,9 @@ while keep_going == 1:
 
         # On a Key-Down, start the photo timer
         if e.type == pygame.KEYDOWN:
-            if e.key == pygame.K_UP:
+            if e.key == pygame.K_SPACE:
                 start_photo_timer(0)
-            elif e.key == pygame.K_DOWN:
+            elif e.key == pygame.K_q:
                 keep_going = 0
         # On a timer event, trigger the photo
         if e.type == EVENTID_PHOTOTIMER:
