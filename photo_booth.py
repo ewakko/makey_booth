@@ -196,7 +196,7 @@ def composite_images ( bgimage, uniquefn ):
         # Thumbnail the images to make small images to paste onto the template
         cam_image.thumbnail((1120,800), Image.ANTIALIAS)
         # Paste the images in order, 2 copies of the same image in my case, 2 columns (2 strips of images per 6x4)
-       if x == 0:
+        if x == 0:
             bgimage.paste(cam_image,(64,25))
             bgimage.paste(cam_image,(640,25))
         if x == 1:
