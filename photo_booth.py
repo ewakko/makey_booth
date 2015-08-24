@@ -74,8 +74,17 @@ print "System Detected:    " + platform.system()
 print "picamera available: " + str(picamera_available)
 print "rpi_gpio available: " + str(rpi_gpio_available)
 print "printer available:  " + str(printer_available)
-# set up pygame
+# setup pygame stuff https://github.com/shingkai/asa_photobooth/blob/master/photobooth.py
 pygame.init()
+DISPLAYSURF = pygame.display.set_mode((0,0))
+WHITE = (128,128,128)
+RED = (255,0,0)
+BLACK = (0,0,0)
+fontObj = pygame.font.Font('freesansbold.ttf', 128)
+textSurfaceObj = fontObj.render("3", True, RED)
+textRectObj = textSurfaceObj.get_rect()
+textRectObj.center = (DISPLAYSURF.get_width() / 2, DISPLAYSURF.get_height() / 2)
+pygame.mouse.set_visible(False)
 
 WIDTH=1280
 HEIGHT=1024
@@ -102,6 +111,10 @@ if picamera_available == True:
     camera.hflip = False
     camera.brightness = 60
     #camera.rotation = 90
+    camera.preview_fullscreen = True
+    camera.preview_layer = 2
+    camera.preview_alpha = 225
+    camera.start_preview()
 else:
     print "Initializing Native Linux Camera"
     pygame.camera.init()
@@ -110,11 +123,11 @@ else:
     camera = pygame.camera.Camera(cameras[0],(WIDTH, HEIGHT))
     camera.start()
     
-screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
-pygame.display.set_caption("pyGame Camera View")
-black = pygame.Color(0, 0, 0)
-textcol = pygame.Color(255, 255, 0)
-screen.fill(black)
+#screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
+#pygame.display.set_caption("pyGame Camera View")
+#black = pygame.Color(0, 0, 0)
+#textcol = pygame.Color(255, 255, 0)
+#screen.fill(black)
 
 # Open the photobooth background image
 in_bgimage = PIL.Image.open("./photo_template.jpg")
@@ -176,9 +189,17 @@ def isUp(hostname):
 # Platform-agonstic function to save snapshot as jpg
 def get_current_image_as_jpg( camera, filename ):
     if picamera_available == True:
-        camera.start_preview()
+        #camera.start_preview()
+        #camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
+        #camera.stop_preview()
+        DISPLAYSURF.fill(BLACK)
+        pygame.display.update()
+        camera.preview_alpha = 0
         camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
-        camera.stop_preview()
+        pygame.time.wait(100);
+        camera.preview_alpha = 225
+        DISPLAYSURF.fill(WHITE)
+        pygame.display.update()
     else:
         img = camera.get_image()
         pygame.image.save(img,filename)
@@ -263,6 +284,11 @@ def initiate_photo(channel):
     print "Finished getting image"
     set_photo_led(False);
     curShot = curShot + 1
+    DISPLAYSURF.fill(WHITE)
+    textSurfaceObj = fontObj.render(str(i), True, RED)
+    DISPLAYSURF.blit(textSurfaceObj, textRectObj)
+    pygame.display.update()
+    pygame.time.wait(1000)
     if curShot == NUM_SHOTS_PER_PRINT:
         # Produce the final output image
         composite_images ( in_bgimage, photolist )
