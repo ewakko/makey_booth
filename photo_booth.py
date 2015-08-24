@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os
+import datetime
 import pygame, sys
 import pygame.camera
 #import Image
@@ -76,10 +77,10 @@ print "printer available:  " + str(printer_available)
 # set up pygame
 pygame.init()
 
-#WIDTH=1280
-#HEIGHT=1024
-WIDTH=480
-HEIGHT=320
+WIDTH=1280
+HEIGHT=1024
+#WIDTH=480
+#HEIGHT=320
 # .5 = 640x512
 # .4 ~= 512x409
 NUM_SHOTS_PER_PRINT=4
@@ -87,16 +88,20 @@ curShot=0
 EVENTID_PHOTOTIMER=USEREVENT+0
 timer_going=0
 photo_delay_time_ms=2000
+photolist=[]
 
 # INIT CAMERA
 if picamera_available == True:
     # Initialize camera with picamera library
     print "Initializing Rasberry Pi Camera"
     camera = picamera.PiCamera()
+    #insert setting from wedding thread
+    camera.resolution = (1944, 2592)
+    camera.framerate = (15)
     camera.vflip = True
     camera.hflip = False
     camera.brightness = 60
-    camera.rotation = 90
+    #camera.rotation = 90
 else:
     print "Initializing Native Linux Camera"
     pygame.camera.init()
@@ -171,9 +176,9 @@ def isUp(hostname):
 # Platform-agonstic function to save snapshot as jpg
 def get_current_image_as_jpg( camera, filename ):
     if picamera_available == True:
-        #camera.start_preview()
+        camera.start_preview()
         camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
-        #camera.stop_preview()
+        camera.stop_preview()
     else:
         img = camera.get_image()
         pygame.image.save(img,filename)
@@ -189,26 +194,28 @@ def get_current_image_fast( camera ):
     return
         
 # Create the final composited image for printing
-def composite_images ( bgimage, uniquefn ):
+def composite_images ( bgimage, photolist ):
     print "Creating final image for printing"
     for x in xrange(0,NUM_SHOTS_PER_PRINT):
-        cam_image = PIL.Image.open(uniquefn + str(x) + ".jpg")
+        cam_image = PIL.Image.open(photolist[x])
         # Thumbnail the images to make small images to paste onto the template
         cam_image.thumbnail((1120,800), Image.ANTIALIAS)
         # Paste the images in order, 2 copies of the same image in my case, 2 columns (2 strips of images per 6x4)
         if x == 0:
-            bgimage.paste(cam_image,(64,25))
-            bgimage.paste(cam_image,(640,25))
+            bgimage.paste(cam_image,(15,120))
+            bgimage.paste(cam_image,(1235,120))
         if x == 1:
-            bgimage.paste(cam_image,(64,469))
-            bgimage.paste(cam_image,(640,469))
+            bgimage.paste(cam_image,(15,900))
+            bgimage.paste(cam_image,(1235,900))
         if x == 2:
-            bgimage.paste(cam_image,(64,913))
-            bgimage.paste(cam_image,(640,913))
+            bgimage.paste(cam_image,(15,1700))
+            bgimage.paste(cam_image,(1235,1700))
         if x == 3:
-            bgimage.paste(cam_image,(64,1357))
-            bgimage.paste(cam_image,(640,1357))
-    bgimage.save(uniquefn + "out.jpg")
+            bgimage.paste(cam_image,(15,2600))
+            bgimage.paste(cam_image,(1235,2600))
+    #Add timestamp to photoname so I don't overwrite photos and have a digital copy to keep
+    time = str(datetime.datetime.now())
+    bgimage.save( "./photos/composite/" + time + "out.jpg")
     return
 
 def start_photo_timer(channel):
@@ -242,6 +249,7 @@ def delayed_photo(channel):
 def initiate_photo(channel):
     global curShot
     global timer_going
+    global photolist
     print "Taking a snapshot " + str(curShot)
     # Update the display with the latest image
     set_photo_led(True);
@@ -249,7 +257,7 @@ def initiate_photo(channel):
     time = str(datetime.datetime.now())
     uniquefn = './photos/' + time.replace(' ', '_') + '-'
     filename = uniquefn + str(curShot) + '.jpg'
-
+    photolist.append(filename)
     get_current_image_as_jpg(camera, filename)
     #get_current_image_as_jpg(camera, 'image' + str(curShot) + '.jpg')
     print "Finished getting image"
@@ -257,7 +265,7 @@ def initiate_photo(channel):
     curShot = curShot + 1
     if curShot == NUM_SHOTS_PER_PRINT:
         # Produce the final output image
-        composite_images ( in_bgimage, uniquefn )
+        composite_images ( in_bgimage, photolist )
         curShot = 0
         timer_going = 0
         pygame.time.set_timer(EVENTID_PHOTOTIMER,0)
