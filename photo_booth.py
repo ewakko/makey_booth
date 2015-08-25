@@ -267,6 +267,13 @@ def setup_gpio():
 def delayed_photo(channel):
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN,key = pygame.K_SPACE))
     
+def display_countdown:
+    DISPLAYSURF.fill(WHITE)
+    textSurfaceObj = fontObj.render(str(curShot), True, RED)
+    DISPLAYSURF.blit(textSurfaceObj, textRectObj)
+    pygame.display.update()
+    pygame.time.wait(1000)
+
 def initiate_photo(channel):
     global curShot
     global timer_going
@@ -284,11 +291,6 @@ def initiate_photo(channel):
     print "Finished getting image"
     set_photo_led(False);
     curShot = curShot + 1
-    DISPLAYSURF.fill(WHITE)
-    textSurfaceObj = fontObj.render(str(i), True, RED)
-    DISPLAYSURF.blit(textSurfaceObj, textRectObj)
-    pygame.display.update()
-    pygame.time.wait(1000)
     if curShot == NUM_SHOTS_PER_PRINT:
         # Produce the final output image
         composite_images ( in_bgimage, photolist )
@@ -332,5 +334,5 @@ while keep_going == 1:
                 
     #READ IMAGE AND PUT ON SCREEN
     img = get_current_image_fast( camera )
-    screen.blit(img, (0, 0))
+    #screen.blit(img, (0, 0))
     pygame.display.update()
