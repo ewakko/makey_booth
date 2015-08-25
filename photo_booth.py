@@ -86,6 +86,7 @@ curShot=0
 EVENTID_PHOTOTIMER=USEREVENT+0
 timer_going=0
 photo_delay_time_ms=2000
+countdown=5
 photolist=[]
 
 # setup pygame stuff https://github.com/shingkai/asa_photobooth/blob/master/photobooth.py
@@ -187,15 +188,14 @@ def isUp(hostname):
     return isUpBool
 def photo_countdown():
     for x in xrange(1,countdown, -1):
-        screen.fill(WHITE)
-        pygame.display.update()
-        textSurfaceObj = fontObj.render(str(x), True, RED)
-        screen.blit(textSurfaceObj, textRectObj)
+        screen = fontObj.render(str(x), True, RED)
+        #screen.blit(textSurfaceObj, textRectObj)
         pygame.display.update()
         pygame.time.wait(1000)
-    textSurfaceObj = fontObj.render('SMILE', True, RED)
+    screen = fontObj.render('SMILE', True, RED)
     pygame.display.update()
-    screen.blit(textSurfaceObj, textRectObj)
+    pygame.time.wait(1000)
+    #screen.blit(textSurfaceObj, textRectObj)
     pygame.display.update()
     pygame.time.wait(1000)
     pygame.display.update() 
@@ -302,7 +302,7 @@ def initiate_photo(channel):
     curShot = curShot + 1
     screen.fill(WHITE)
     textSurfaceObj = fontObj.render(str(curShot), True, RED)
-    screen.blit(textSurfaceObj, textRectObj)
+    #screen.blit(textSurfaceObj, textRectObj)
     pygame.display.update()
     pygame.time.wait(1000)
     if curShot == NUM_SHOTS_PER_PRINT:
@@ -344,7 +344,7 @@ while keep_going == 1:
             if timer_going == 1:
                 initiate_photo(0)
             else:
-            print "Skipping timer due to lag"
+            	print "Skipping timer due to lag"
                 
     #READ IMAGE AND PUT ON SCREEN
     img = get_current_image_fast( camera )
