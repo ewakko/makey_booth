@@ -76,7 +76,12 @@ print "rpi_gpio available: " + str(rpi_gpio_available)
 print "printer available:  " + str(printer_available)
 # setup pygame stuff https://github.com/shingkai/asa_photobooth/blob/master/photobooth.py
 pygame.init()
-DISPLAYSURF = pygame.display.set_mode((0,0))
+#DISPLAYSURF = pygame.display.set_mode((0,0))
+screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
+pygame.display.set_caption("pyGame Camera View")
+black = pygame.Color(0, 0, 0)
+textcol = pygame.Color(255, 255, 0)
+screen.fill(black)
 WHITE = (128,128,128)
 RED = (255,0,0)
 BLACK = (0,0,0)
@@ -122,12 +127,6 @@ else:
     print ("Using camera " + cameras[0])
     camera = pygame.camera.Camera(cameras[0],(WIDTH, HEIGHT))
     camera.start()
-    
-#screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
-#pygame.display.set_caption("pyGame Camera View")
-#black = pygame.Color(0, 0, 0)
-#textcol = pygame.Color(255, 255, 0)
-#screen.fill(black)
 
 # Open the photobooth background image
 in_bgimage = PIL.Image.open("./photo_template.jpg")
@@ -192,13 +191,13 @@ def get_current_image_as_jpg( camera, filename ):
         #camera.start_preview()
         #camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
         #camera.stop_preview()
-        DISPLAYSURF.fill(BLACK)
+        screen.fill(BLACK)
         pygame.display.update()
         camera.preview_alpha = 0
         camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
         pygame.time.wait(100);
         camera.preview_alpha = 225
-        DISPLAYSURF.fill(WHITE)
+        screen.fill(WHITE)
         pygame.display.update()
     else:
         img = camera.get_image()
@@ -284,9 +283,9 @@ def initiate_photo(channel):
     print "Finished getting image"
     set_photo_led(False);
     curShot = curShot + 1
-    DISPLAYSURF.fill(WHITE)
+    screen.fill(WHITE)
     textSurfaceObj = fontObj.render(str(i), True, RED)
-    DISPLAYSURF.blit(textSurfaceObj, textRectObj)
+    screen.blit(textSurfaceObj, textRectObj)
     pygame.display.update()
     pygame.time.wait(1000)
     if curShot == NUM_SHOTS_PER_PRINT:
