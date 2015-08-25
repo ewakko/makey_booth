@@ -87,7 +87,8 @@ NUM_SHOTS_PER_PRINT=4
 curShot=0
 EVENTID_PHOTOTIMER=USEREVENT+0
 timer_going=0
-photo_delay_time_ms=2000
+photo_delay_time_ms=0
+countdown=5
 photolist=[]
 # INIT CAMERA
 if picamera_available == True:
@@ -108,9 +109,16 @@ else:
     
 screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
 pygame.display.set_caption("pyGame Camera View")
-black = pygame.Color(0, 0, 0)
+BLACK = (0, 0, 0)
+WHITE = (128, 128, 128)
+RED = (255, 0, 0)
+fontObj = pygame.font.Font('freesansbold.ttf', 128)
+textSurfaceObj = fontObj.render("3", True, RED)
+textRectObj = textSurfaceObj.get_rect()
+textRectObj.center = (screen.get_width() / 2, screen.get_height() / 2)
 textcol = pygame.Color(255, 255, 0)
-screen.fill(black)
+pygame.mouse.set_visible(False)
+screen.fill(BLACK)
 
 # Open the photobooth background image
 in_bgimage = PIL.Image.open("./photo_template.jpg")
@@ -243,17 +251,19 @@ def delayed_photo(channel):
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN,key = pygame.K_SPACE))
     
 def photo_countdown():
-    for x in xrange(1,countdown, -1):
+    for x in xrange(countdown,0, -1):
+    	print "Start countdown " + str(x)
         screen.fill(WHITE)
         textSurfaceObj = fontObj.render(str(x), True, RED)
         screen.blit(textSurfaceObj, textRectObj)
-        pygame.time.wait(5000)
+        pygame.display.update()
+        pygame.time.wait(1000)
         pygame.display.update()
     textSurfaceObj = fontObj.render('SMILE', True, RED)
     screen.blit(textSurfaceObj, textRectObj)
     pygame.display.update()
     pygame.time.wait(1000)
-    pygame.display.update()   
+    pygame.display.update()
 
 def initiate_photo(channel):
     global curShot
