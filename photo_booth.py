@@ -74,6 +74,20 @@ print "System Detected:    " + platform.system()
 print "picamera available: " + str(picamera_available)
 print "rpi_gpio available: " + str(rpi_gpio_available)
 print "printer available:  " + str(printer_available)
+
+WIDTH=1280
+HEIGHT=1024
+#WIDTH=480
+#HEIGHT=320
+# .5 = 640x512
+# .4 ~= 512x409
+NUM_SHOTS_PER_PRINT=4
+curShot=0
+EVENTID_PHOTOTIMER=USEREVENT+0
+timer_going=0
+photo_delay_time_ms=2000
+photolist=[]
+
 # setup pygame stuff https://github.com/shingkai/asa_photobooth/blob/master/photobooth.py
 pygame.init()
 #DISPLAYSURF = pygame.display.set_mode((0,0))
@@ -90,19 +104,6 @@ textSurfaceObj = fontObj.render("3", True, RED)
 textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (DISPLAYSURF.get_width() / 2, DISPLAYSURF.get_height() / 2)
 pygame.mouse.set_visible(False)
-
-WIDTH=1280
-HEIGHT=1024
-#WIDTH=480
-#HEIGHT=320
-# .5 = 640x512
-# .4 ~= 512x409
-NUM_SHOTS_PER_PRINT=4
-curShot=0
-EVENTID_PHOTOTIMER=USEREVENT+0
-timer_going=0
-photo_delay_time_ms=2000
-photolist=[]
 
 # INIT CAMERA
 if picamera_available == True:
