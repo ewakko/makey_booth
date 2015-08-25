@@ -90,19 +90,19 @@ photolist=[]
 
 # setup pygame stuff https://github.com/shingkai/asa_photobooth/blob/master/photobooth.py
 pygame.init()
-#DISPLAYSURF = pygame.display.set_mode((0,0))
-screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
+screen = pygame.display.set_mode((0,0))
+#screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
 pygame.display.set_caption("pyGame Camera View")
-black = pygame.Color(0, 0, 0)
-textcol = pygame.Color(255, 255, 0)
-screen.fill(black)
+#black = pygame.Color(0, 0, 0)
+#textcol = pygame.Color(255, 255, 0)
+#screen.fill(black)
 WHITE = (128,128,128)
 RED = (255,0,0)
 BLACK = (0,0,0)
 fontObj = pygame.font.Font('freesansbold.ttf', 128)
 textSurfaceObj = fontObj.render("3", True, RED)
 textRectObj = textSurfaceObj.get_rect()
-textRectObj.center = (DISPLAYSURF.get_width() / 2, DISPLAYSURF.get_height() / 2)
+textRectObj.center = (screen.get_width() / 2, screen.get_height() / 2)
 pygame.mouse.set_visible(False)
 
 # INIT CAMERA
@@ -112,8 +112,8 @@ if picamera_available == True:
     camera = picamera.PiCamera()
     #insert setting from wedding thread
     camera.resolution = (1944, 2592)
-    camera.framerate = (15)
-    camera.vflip = True
+    #camera.framerate = (15)
+    camera.vflip = False
     camera.hflip = False
     camera.brightness = 60
     #camera.rotation = 90
@@ -209,7 +209,7 @@ def get_current_image_as_jpg( camera, filename ):
 def get_current_image_fast( camera ):
     if picamera_available == True:
         camera.capture('/tmp/photobooth_curcam.jpg', format='jpeg', resize=(WIDTH,HEIGHT))
-	return pygame.image.load('/tmp/photobooth_curcam.jpg')
+    return pygame.image.load('/tmp/photobooth_curcam.jpg')
     else:
         return camera.get_image()
     return
@@ -328,7 +328,7 @@ while keep_going == 1:
             if timer_going == 1:
                 initiate_photo(0)
             else:
-		print "Skipping timer due to lag"
+        print "Skipping timer due to lag"
                 
     #READ IMAGE AND PUT ON SCREEN
     img = get_current_image_fast( camera )
