@@ -101,8 +101,8 @@ RED = (255,0,0)
 BLACK = (0,0,0)
 fontObj = pygame.font.Font('freesansbold.ttf', 128)
 textSurfaceObj = fontObj.render("3", True, RED)
-textRectObj = textSurfaceObj.get_rect()
-textRectObj.center = (screen.get_width() / 2, screen.get_height() / 2)
+#textRectObj = textSurfaceObj.get_rect()
+#textRectObj.center = (screen.get_width() / 2, screen.get_height() / 2)
 pygame.mouse.set_visible(False)
 
 # INIT CAMERA
@@ -185,6 +185,20 @@ def isUp(hostname):
         isUpBool = True
 
     return isUpBool
+def photo_countdown():
+    for x in xrange(1,countdown, -1):
+        screen.fill(WHITE)
+        pygame.display.update()
+        textSurfaceObj = fontObj.render(str(x), True, RED)
+        screen.blit(textSurfaceObj, textRectObj)
+        pygame.display.update()
+        pygame.time.wait(1000)
+    textSurfaceObj = fontObj.render('SMILE', True, RED)
+    pygame.display.update()
+    screen.blit(textSurfaceObj, textRectObj)
+    pygame.display.update()
+    pygame.time.wait(1000)
+    pygame.display.update() 
 
 # Platform-agonstic function to save snapshot as jpg
 def get_current_image_as_jpg( camera, filename ):
@@ -192,9 +206,10 @@ def get_current_image_as_jpg( camera, filename ):
         #camera.start_preview()
         #camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
         #camera.stop_preview()
-        screen.fill(BLACK)
-        pygame.display.update()
-        camera.preview_alpha = 0
+        #screen.fill(BLACK)
+        #pygame.display.update()
+        #camera.preview_alpha = 0
+        
         camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
         pygame.time.wait(100);
         camera.preview_alpha = 225
@@ -209,7 +224,7 @@ def get_current_image_as_jpg( camera, filename ):
 def get_current_image_fast( camera ):
     if picamera_available == True:
         camera.capture('/tmp/photobooth_curcam.jpg', format='jpeg', resize=(WIDTH,HEIGHT))
-    	return pygame.image.load('/tmp/photobooth_curcam.jpg')
+        return pygame.image.load('/tmp/photobooth_curcam.jpg')
     else:
         return camera.get_image()
     return
@@ -274,6 +289,7 @@ def initiate_photo(channel):
     print "Taking a snapshot " + str(curShot)
     # Update the display with the latest image
     set_photo_led(True);
+    photo_countdown();
     #Add timestamp to photoname so I don't overwrite photos and have a digital copy to keep
     time = str(datetime.datetime.now())
     uniquefn = './photos/' + time.replace(' ', '_') + '-'
@@ -328,7 +344,7 @@ while keep_going == 1:
             if timer_going == 1:
                 initiate_photo(0)
             else:
-        	print "Skipping timer due to lag"
+            print "Skipping timer due to lag"
                 
     #READ IMAGE AND PUT ON SCREEN
     img = get_current_image_fast( camera )
