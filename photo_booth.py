@@ -96,7 +96,8 @@ NUM_SHOTS_PER_PRINT=4
 curShot=0
 EVENTID_PHOTOTIMER=USEREVENT+0
 timer_going=0
-photo_delay_time_ms=2000
+photo_delay_time_ms=0
+countdown=5
 photolist=[]
 
 # INIT CAMERA
@@ -107,7 +108,7 @@ if picamera_available == True:
     #insert setting from wedding thread
     camera.resolution = (1944, 2592)
     camera.framerate = (15)
-    camera.vflip = True
+    camera.vflip = False
     camera.hflip = False
     camera.brightness = 60
     #camera.rotation = 90
@@ -209,7 +210,7 @@ def get_current_image_as_jpg( camera, filename ):
 def get_current_image_fast( camera ):
     if picamera_available == True:
         camera.capture('/tmp/photobooth_curcam.jpg', format='jpeg', resize=(WIDTH,HEIGHT))
-	return pygame.image.load('/tmp/photobooth_curcam.jpg')
+    return pygame.image.load('/tmp/photobooth_curcam.jpg')
     else:
         return camera.get_image()
     return
@@ -223,17 +224,17 @@ def composite_images ( bgimage, photolist ):
         cam_image.thumbnail((1120,800), Image.ANTIALIAS)
         # Paste the images in order, 2 copies of the same image in my case, 2 columns (2 strips of images per 6x4)
         if x == 0:
-            bgimage.paste(cam_image,(15,120))
-            bgimage.paste(cam_image,(1235,120))
+            bgimage.paste(cam_image,(64,25))
+            bgimage.paste(cam_image,(640,25))
         if x == 1:
-            bgimage.paste(cam_image,(15,900))
-            bgimage.paste(cam_image,(1235,900))
+            bgimage.paste(cam_image,(64,469))
+            bgimage.paste(cam_image,(640,469))
         if x == 2:
-            bgimage.paste(cam_image,(15,1700))
-            bgimage.paste(cam_image,(1235,1700))
+            bgimage.paste(cam_image,(64,913))
+            bgimage.paste(cam_image,(640,913))
         if x == 3:
-            bgimage.paste(cam_image,(15,2600))
-            bgimage.paste(cam_image,(1235,2600))
+            bgimage.paste(cam_image,(64,1357))
+            bgimage.paste(cam_image,(640,1357))
     #Add timestamp to photoname so I don't overwrite photos and have a digital copy to keep
     time = str(datetime.datetime.now())
     bgimage.save( "./photos/composite/" + time + "out.jpg")
@@ -266,13 +267,17 @@ def setup_gpio():
 
 def delayed_photo(channel):
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN,key = pygame.K_SPACE))
-    
-def display_countdown:
-    DISPLAYSURF.fill(WHITE)
-    textSurfaceObj = fontObj.render(str(curShot), True, RED)
+
+def photo_countdown(channel):
+    for x in xrange(1,countdown, -1):
+        DISPLAYSURF.fill(WHITE)
+        textSurfaceObj = fontObj.render(str(x), True, RED)
+        DISPLAYSURF.blit(textSurfaceObj, textRectObj)
+        pygame.display.update()
+        pygame.time.wait(1000)
+    textSurfaceObj = fontObj.render('SMILE', True, RED)
     DISPLAYSURF.blit(textSurfaceObj, textRectObj)
-    pygame.display.update()
-    pygame.time.wait(1000)
+    pygame.display.update()    
 
 def initiate_photo(channel):
     global curShot
@@ -286,6 +291,7 @@ def initiate_photo(channel):
     uniquefn = './photos/' + time.replace(' ', '_') + '-'
     filename = uniquefn + str(curShot) + '.jpg'
     photolist.append(filename)
+    photo_countdown(channel)
     get_current_image_as_jpg(camera, filename)
     #get_current_image_as_jpg(camera, 'image' + str(curShot) + '.jpg')
     print "Finished getting image"
@@ -330,9 +336,9 @@ while keep_going == 1:
             if timer_going == 1:
                 initiate_photo(0)
             else:
-		print "Skipping timer due to lag"
+        print "Skipping timer due to lag"
                 
     #READ IMAGE AND PUT ON SCREEN
     img = get_current_image_fast( camera )
-    #screen.blit(img, (0, 0))
+    screen.blit(img, (0, 0))
     pygame.display.update()
