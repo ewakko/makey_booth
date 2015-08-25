@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os
+import datetime
 import pygame, sys
 import pygame.camera
 #import Image
@@ -87,7 +88,7 @@ curShot=0
 EVENTID_PHOTOTIMER=USEREVENT+0
 timer_going=0
 photo_delay_time_ms=2000
-
+photolist=[]
 # INIT CAMERA
 if picamera_available == True:
     # Initialize camera with picamera library
@@ -171,9 +172,9 @@ def isUp(hostname):
 # Platform-agonstic function to save snapshot as jpg
 def get_current_image_as_jpg( camera, filename ):
     if picamera_available == True:
-        #camera.start_preview()
+        camera.start_preview()
         camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
-        #camera.stop_preview()
+        camera.stop_preview()
     else:
         img = camera.get_image()
         pygame.image.save(img,filename)
@@ -189,14 +190,14 @@ def get_current_image_fast( camera ):
     return
         
 # Create the final composited image for printing
-def composite_images ( bgimage, uniquefn ):
+def composite_images ( bgimage, photolist ):
     print "Creating final image for printing"
     for x in xrange(0,NUM_SHOTS_PER_PRINT):
-        cam_image = PIL.Image.open(uniquefn + str(x) + ".jpg")
+        cam_image = PIL.Image.open(photolist[x])
         # Thumbnail the images to make small images to paste onto the template
         cam_image.thumbnail((1120,800), Image.ANTIALIAS)
         # Paste the images in order, 2 copies of the same image in my case, 2 columns (2 strips of images per 6x4)
-       if x == 0:
+       	if x == 0:
             bgimage.paste(cam_image,(64,25))
             bgimage.paste(cam_image,(640,25))
         if x == 1:
@@ -208,7 +209,9 @@ def composite_images ( bgimage, uniquefn ):
         if x == 3:
             bgimage.paste(cam_image,(64,1357))
             bgimage.paste(cam_image,(640,1357))
-    bgimage.save(uniquefn + "out.jpg")
+    #Add timestamp to photoname so I don't overwrite photos and have a digital copy to keep
+    time = str(datetime.datetime.now())
+    bgimage.save("./photos/composite/" + time + "out.jpg")
     return
 
 def start_photo_timer(channel):
@@ -249,7 +252,7 @@ def initiate_photo(channel):
     time = str(datetime.datetime.now())
     uniquefn = './photos/' + time.replace(' ', '_') + '-'
     filename = uniquefn + str(curShot) + '.jpg'
-
+    photolist.append(filename)
     get_current_image_as_jpg(camera, filename)
     #get_current_image_as_jpg(camera, 'image' + str(curShot) + '.jpg')
     print "Finished getting image"
@@ -257,7 +260,7 @@ def initiate_photo(channel):
     curShot = curShot + 1
     if curShot == NUM_SHOTS_PER_PRINT:
         # Produce the final output image
-        composite_images ( in_bgimage, uniquefn )
+        composite_images ( in_bgimage, photolist )
         curShot = 0
         timer_going = 0
         pygame.time.set_timer(EVENTID_PHOTOTIMER,0)
