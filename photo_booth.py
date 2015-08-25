@@ -79,8 +79,8 @@ pygame.init()
 
 #WIDTH=1280
 #HEIGHT=1024
-WIDTH=480
-HEIGHT=320
+WIDTH=550
+HEIGHT=425
 # .5 = 640x512
 # .4 ~= 512x409
 NUM_SHOTS_PER_PRINT=4
@@ -198,17 +198,17 @@ def composite_images ( bgimage, photolist ):
         cam_image.thumbnail((1120,800), Image.ANTIALIAS)
         # Paste the images in order, 2 copies of the same image in my case, 2 columns (2 strips of images per 6x4)
        	if x == 0:
-            bgimage.paste(cam_image,(64,25))
-            bgimage.paste(cam_image,(640,25))
+            bgimage.paste(cam_image,(25,25))
+            bgimage.paste(cam_image,(625,25))
         if x == 1:
-            bgimage.paste(cam_image,(64,469))
-            bgimage.paste(cam_image,(640,469))
+            bgimage.paste(cam_image,(25,450))
+            bgimage.paste(cam_image,(625,450))
         if x == 2:
-            bgimage.paste(cam_image,(64,913))
-            bgimage.paste(cam_image,(640,913))
+            bgimage.paste(cam_image,(25,925))
+            bgimage.paste(cam_image,(625,925))
         if x == 3:
-            bgimage.paste(cam_image,(64,1357))
-            bgimage.paste(cam_image,(640,1357))
+            bgimage.paste(cam_image,(25,1375))
+            bgimage.paste(cam_image,(625,1375))
     #Add timestamp to photoname so I don't overwrite photos and have a digital copy to keep
     time = str(datetime.datetime.now())
     bgimage.save("./photos/composite/" + time + "out.jpg")
