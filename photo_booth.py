@@ -209,7 +209,7 @@ def get_current_image_as_jpg( camera, filename ):
 def get_current_image_fast( camera ):
     if picamera_available == True:
         camera.capture('/tmp/photobooth_curcam.jpg', format='jpeg', resize=(WIDTH,HEIGHT))
-    return pygame.image.load('/tmp/photobooth_curcam.jpg')
+    	return pygame.image.load('/tmp/photobooth_curcam.jpg')
     else:
         return camera.get_image()
     return
@@ -285,7 +285,7 @@ def initiate_photo(channel):
     set_photo_led(False);
     curShot = curShot + 1
     screen.fill(WHITE)
-    textSurfaceObj = fontObj.render(str(i), True, RED)
+    textSurfaceObj = fontObj.render(str(curShot), True, RED)
     screen.blit(textSurfaceObj, textRectObj)
     pygame.display.update()
     pygame.time.wait(1000)
@@ -328,7 +328,7 @@ while keep_going == 1:
             if timer_going == 1:
                 initiate_photo(0)
             else:
-        print "Skipping timer due to lag"
+        	print "Skipping timer due to lag"
                 
     #READ IMAGE AND PUT ON SCREEN
     img = get_current_image_fast( camera )
