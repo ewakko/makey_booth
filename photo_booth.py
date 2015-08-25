@@ -242,6 +242,19 @@ def setup_gpio():
 def delayed_photo(channel):
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN,key = pygame.K_SPACE))
     
+def photo_countdown():
+    for x in xrange(1,countdown, -1):
+        screen.fill(WHITE)
+        textSurfaceObj = fontObj.render(str(x), True, RED)
+        screen.blit(textSurfaceObj, textRectObj)
+        pygame.time.wait(5000)
+        pygame.display.update()
+    textSurfaceObj = fontObj.render('SMILE', True, RED)
+    screen.blit(textSurfaceObj, textRectObj)
+    pygame.display.update()
+    pygame.time.wait(1000)
+    pygame.display.update()   
+
 def initiate_photo(channel):
     global curShot
     global timer_going
@@ -253,6 +266,7 @@ def initiate_photo(channel):
     uniquefn = './photos/' + time.replace(' ', '_') + '-'
     filename = uniquefn + str(curShot) + '.jpg'
     photolist.append(filename)
+    photo_countdown()
     get_current_image_as_jpg(camera, filename)
     #get_current_image_as_jpg(camera, 'image' + str(curShot) + '.jpg')
     print "Finished getting image"
