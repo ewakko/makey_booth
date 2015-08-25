@@ -87,7 +87,7 @@ NUM_SHOTS_PER_PRINT=4
 curShot=0
 EVENTID_PHOTOTIMER=USEREVENT+0
 timer_going=0
-photo_delay_time_ms=0
+photo_delay_time_ms=1000
 countdown=5
 photolist=[]
 # INIT CAMERA
@@ -117,8 +117,8 @@ textSurfaceObj = fontObj.render("3", True, RED)
 textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (screen.get_width() / 2, screen.get_height() / 2)
 textcol = pygame.Color(255, 255, 0)
-pygame.mouse.set_visible(False)
 screen.fill(BLACK)
+pygame.mouse.set_visible(False)
 
 # Open the photobooth background image
 in_bgimage = PIL.Image.open("./photo_template.jpg")
@@ -256,14 +256,14 @@ def photo_countdown():
         screen.fill(WHITE)
         textSurfaceObj = fontObj.render(str(x), True, RED)
         screen.blit(textSurfaceObj, textRectObj)
-        pygame.display.update()
+        #pygame.display.update()
         pygame.time.wait(1000)
         pygame.display.update()
     textSurfaceObj = fontObj.render('SMILE', True, RED)
     screen.blit(textSurfaceObj, textRectObj)
     pygame.display.update()
     pygame.time.wait(1000)
-    pygame.display.update()
+    #pygame.display.update()
 
 def initiate_photo(channel):
     global curShot
@@ -276,6 +276,8 @@ def initiate_photo(channel):
     uniquefn = './photos/' + time.replace(' ', '_') + '-'
     filename = uniquefn + str(curShot) + '.jpg'
     photolist.append(filename)
+    print "i'm going to start the countdown"
+
     photo_countdown()
     get_current_image_as_jpg(camera, filename)
     #get_current_image_as_jpg(camera, 'image' + str(curShot) + '.jpg')
