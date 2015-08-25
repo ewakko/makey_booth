@@ -95,7 +95,7 @@ if picamera_available == True:
     # Initialize camera with picamera library
     print "Initializing Rasberry Pi Camera"
     camera = picamera.PiCamera()
-    camera.vflip = True
+    camera.vflip = False
     camera.hflip = False
     camera.brightness = 60
     camera.rotation = 90
@@ -109,10 +109,10 @@ else:
     
 screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
 pygame.display.set_caption("pyGame Camera View")
-BLACK = (0, 0, 0)
-WHITE = (128, 128, 128)
-RED = (255, 0, 0)
-fontObj = pygame.font.Font('freesansbold.ttf', 128)
+BLACK = (0, 0, 0, 128)
+WHITE = (128, 128, 128, 128)
+RED = (255, 0, 0, 128)
+fontObj = pygame.font.Font('freesansbold.ttf', 70)
 textSurfaceObj = fontObj.render("3", True, RED)
 textRectObj = textSurfaceObj.get_rect()
 textRectObj.center = (screen.get_width() / 2, screen.get_height() / 2)
@@ -251,19 +251,19 @@ def delayed_photo(channel):
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN,key = pygame.K_SPACE))
     
 def photo_countdown():
-    for x in xrange(countdown,0, -1):
+    for x in xrange(countdown,-1, -1):
     	print "Start countdown " + str(x)
-        screen.fill(WHITE)
+    	screen.blit(img, (0, 0))
         textSurfaceObj = fontObj.render(str(x), True, RED)
         screen.blit(textSurfaceObj, textRectObj)
-        #pygame.display.update()
         pygame.time.wait(1000)
         pygame.display.update()
+    screen.blit(img, (0, 0))
+    #screen.fill()
     textSurfaceObj = fontObj.render('SMILE', True, RED)
     screen.blit(textSurfaceObj, textRectObj)
     pygame.display.update()
     pygame.time.wait(1000)
-    #pygame.display.update()
 
 def initiate_photo(channel):
     global curShot
