@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os
-import datetime
 import pygame, sys
 import pygame.camera
 #import Image
@@ -74,11 +73,13 @@ print "System Detected:    " + platform.system()
 print "picamera available: " + str(picamera_available)
 print "rpi_gpio available: " + str(rpi_gpio_available)
 print "printer available:  " + str(printer_available)
+# set up pygame
+pygame.init()
 
-WIDTH=1280
-HEIGHT=1024
-#WIDTH=480
-#HEIGHT=320
+#WIDTH=1280
+#HEIGHT=1024
+WIDTH=480
+HEIGHT=320
 # .5 = 640x512
 # .4 ~= 512x409
 NUM_SHOTS_PER_PRINT=4
@@ -86,42 +87,16 @@ curShot=0
 EVENTID_PHOTOTIMER=USEREVENT+0
 timer_going=0
 photo_delay_time_ms=2000
-countdown=5
-photolist=[]
-
-# setup pygame stuff https://github.com/shingkai/asa_photobooth/blob/master/photobooth.py
-pygame.init()
-screen = pygame.display.set_mode((0,0))
-#screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
-pygame.display.set_caption("pyGame Camera View")
-#black = pygame.Color(0, 0, 0)
-#textcol = pygame.Color(255, 255, 0)
-#screen.fill(black)
-WHITE = (128,128,128)
-RED = (255,0,0)
-BLACK = (0,0,0)
-fontObj = pygame.font.Font('freesansbold.ttf', 128)
-textSurfaceObj = fontObj.render("3", True, RED)
-#textRectObj = textSurfaceObj.get_rect()
-#textRectObj.center = (screen.get_width() / 2, screen.get_height() / 2)
-pygame.mouse.set_visible(False)
 
 # INIT CAMERA
 if picamera_available == True:
     # Initialize camera with picamera library
     print "Initializing Rasberry Pi Camera"
     camera = picamera.PiCamera()
-    #insert setting from wedding thread
-    camera.resolution = (1944, 2592)
-    #camera.framerate = (15)
-    camera.vflip = False
+    camera.vflip = True
     camera.hflip = False
     camera.brightness = 60
-    #camera.rotation = 90
-    camera.preview_fullscreen = True
-    camera.preview_layer = 2
-    camera.preview_alpha = 225
-    camera.start_preview()
+    camera.rotation = 90
 else:
     print "Initializing Native Linux Camera"
     pygame.camera.init()
@@ -129,6 +104,12 @@ else:
     print ("Using camera " + cameras[0])
     camera = pygame.camera.Camera(cameras[0],(WIDTH, HEIGHT))
     camera.start()
+    
+screen = pygame.display.set_mode( ( WIDTH, HEIGHT ), pygame.NOFRAME )
+pygame.display.set_caption("pyGame Camera View")
+black = pygame.Color(0, 0, 0)
+textcol = pygame.Color(255, 255, 0)
+screen.fill(black)
 
 # Open the photobooth background image
 in_bgimage = PIL.Image.open("./photo_template.jpg")
@@ -186,35 +167,13 @@ def isUp(hostname):
         isUpBool = True
 
     return isUpBool
-def photo_countdown():
-    for x in xrange(1,countdown, -1):
-        screen = fontObj.render(str(x), True, RED)
-        #screen.blit(textSurfaceObj, textRectObj)
-        pygame.display.update()
-        pygame.time.wait(1000)
-    screen = fontObj.render('SMILE', True, RED)
-    pygame.display.update()
-    pygame.time.wait(1000)
-    #screen.blit(textSurfaceObj, textRectObj)
-    pygame.display.update()
-    pygame.time.wait(1000)
-    pygame.display.update() 
 
 # Platform-agonstic function to save snapshot as jpg
 def get_current_image_as_jpg( camera, filename ):
     if picamera_available == True:
         #camera.start_preview()
-        #camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
-        #camera.stop_preview()
-        #screen.fill(BLACK)
-        #pygame.display.update()
-        #camera.preview_alpha = 0
-        
         camera.capture(filename, format='jpeg', resize=(WIDTH,HEIGHT))
-        pygame.time.wait(100);
-        camera.preview_alpha = 225
-        screen.fill(WHITE)
-        pygame.display.update()
+        #camera.stop_preview()
     else:
         img = camera.get_image()
         pygame.image.save(img,filename)
@@ -224,34 +183,32 @@ def get_current_image_as_jpg( camera, filename ):
 def get_current_image_fast( camera ):
     if picamera_available == True:
         camera.capture('/tmp/photobooth_curcam.jpg', format='jpeg', resize=(WIDTH,HEIGHT))
-        return pygame.image.load('/tmp/photobooth_curcam.jpg')
+	return pygame.image.load('/tmp/photobooth_curcam.jpg')
     else:
         return camera.get_image()
     return
         
 # Create the final composited image for printing
-def composite_images ( bgimage, photolist ):
+def composite_images ( bgimage, uniquefn ):
     print "Creating final image for printing"
     for x in xrange(0,NUM_SHOTS_PER_PRINT):
-        cam_image = PIL.Image.open(photolist[x])
+        cam_image = PIL.Image.open(uniquefn + str(x) + ".jpg")
         # Thumbnail the images to make small images to paste onto the template
         cam_image.thumbnail((1120,800), Image.ANTIALIAS)
         # Paste the images in order, 2 copies of the same image in my case, 2 columns (2 strips of images per 6x4)
-        if x == 0:
-            bgimage.paste(cam_image,(15,120))
-            bgimage.paste(cam_image,(1235,120))
+       if x == 0:
+            bgimage.paste(cam_image,(64,25))
+            bgimage.paste(cam_image,(640,25))
         if x == 1:
-            bgimage.paste(cam_image,(15,900))
-            bgimage.paste(cam_image,(1235,900))
+            bgimage.paste(cam_image,(64,469))
+            bgimage.paste(cam_image,(640,469))
         if x == 2:
-            bgimage.paste(cam_image,(15,1700))
-            bgimage.paste(cam_image,(1235,1700))
+            bgimage.paste(cam_image,(64,913))
+            bgimage.paste(cam_image,(640,913))
         if x == 3:
-            bgimage.paste(cam_image,(15,2600))
-            bgimage.paste(cam_image,(1235,2600))
-    #Add timestamp to photoname so I don't overwrite photos and have a digital copy to keep
-    time = str(datetime.datetime.now())
-    bgimage.save( "./photos/composite/" + time + "out.jpg")
+            bgimage.paste(cam_image,(64,1357))
+            bgimage.paste(cam_image,(640,1357))
+    bgimage.save(uniquefn + "out.jpg")
     return
 
 def start_photo_timer(channel):
@@ -285,29 +242,22 @@ def delayed_photo(channel):
 def initiate_photo(channel):
     global curShot
     global timer_going
-    global photolist
     print "Taking a snapshot " + str(curShot)
     # Update the display with the latest image
     set_photo_led(True);
-    photo_countdown();
     #Add timestamp to photoname so I don't overwrite photos and have a digital copy to keep
     time = str(datetime.datetime.now())
     uniquefn = './photos/' + time.replace(' ', '_') + '-'
     filename = uniquefn + str(curShot) + '.jpg'
-    photolist.append(filename)
+
     get_current_image_as_jpg(camera, filename)
     #get_current_image_as_jpg(camera, 'image' + str(curShot) + '.jpg')
     print "Finished getting image"
     set_photo_led(False);
     curShot = curShot + 1
-    screen.fill(WHITE)
-    textSurfaceObj = fontObj.render(str(curShot), True, RED)
-    #screen.blit(textSurfaceObj, textRectObj)
-    pygame.display.update()
-    pygame.time.wait(1000)
     if curShot == NUM_SHOTS_PER_PRINT:
         # Produce the final output image
-        composite_images ( in_bgimage, photolist )
+        composite_images ( in_bgimage, uniquefn )
         curShot = 0
         timer_going = 0
         pygame.time.set_timer(EVENTID_PHOTOTIMER,0)
@@ -344,7 +294,7 @@ while keep_going == 1:
             if timer_going == 1:
                 initiate_photo(0)
             else:
-            	print "Skipping timer due to lag"
+		print "Skipping timer due to lag"
                 
     #READ IMAGE AND PUT ON SCREEN
     img = get_current_image_fast( camera )
